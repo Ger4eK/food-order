@@ -19,12 +19,12 @@ const cartReducer = (state, action) => {
 
     //! If the item already is part of the array, though, this item will be set to that item.
     const existingCartItem = state.items[existingCartItemIndex];
-   
+
     let updatedItems;
 
     //TODO that's what I do if a item is already part of the cart items array.
     if (existingCartItem) {
-     const updatedItem = {
+      const updatedItem = {
         ...existingCartItem,
         amount: existingCartItem.amount + action.item.amount,
       };
@@ -41,6 +41,30 @@ const cartReducer = (state, action) => {
       totalAmount: updatedTotalAmount,
     };
   }
+
+  if (action.type === 'REMOVE') {
+    const existingCartItemIndex = state.items.findIndex(
+      (item) => item.id === action.id
+    );
+    const existingItem = state.items[existingCartItemIndex];
+    const updatedTotalAmount = state.totalAmount - existingItem.price;
+    let updatedItems;
+    //! we wanna keep all items but we wanna remove the item with that id which we get on our action here.
+    if (existingItem.amount === 1) {
+      updatedItems = state.items.filter((item) => item.id !== action.id);
+    }
+    //! So here we have the updated item which is a copy of the existing item
+    else {
+      const updatedItem = { ...existingItem, amount: existingItem.amount - 1 };
+      updatedItems = [...state.items];
+      updatedItems[existingCartItemIndex] = updatedItem;
+    }
+    return {
+      items: updatedItems,
+      totalAmount: updatedTotalAmount,
+    };
+  }
+
   return defaultCartstate;
 };
 
@@ -55,7 +79,7 @@ const CartProvider = (props) => {
   const addItemToCartHandler = (item) => {
     dispatchCartAction({ type: 'ADD', item: item });
   };
-  const removeItemFromCartHandler = (item) => {
+  const removeItemFromCartHandler = (id) => {
     dispatchCartAction({ type: 'REMOVE', id: id });
   };
 
