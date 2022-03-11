@@ -3,8 +3,6 @@ import CartContext from './cart-context';
 
 //! This component is simply to manage the current context to data and provide that context to all components that want access to it.
 
-
-
 const defaultCartstate = {
   items: [],
   totalAmount: 0,
@@ -12,9 +10,32 @@ const defaultCartstate = {
 
 const cartReducer = (state, action) => {
   if (action.type === 'ADD') {
-    const updatedItems = state.items.concat(action.item);
     const updatedTotalAmount =
       state.totalAmount + action.item.price * action.item.amount;
+
+    const existingCartItemIndex = state.items.findIndex(
+      (item) => item.id === action.item.id
+    );
+
+    //! If the item already is part of the array, though, this item will be set to that item.
+    const existingCartItem = state.items[existingCartItemIndex];
+   
+    let updatedItems;
+
+    //TODO that's what I do if a item is already part of the cart items array.
+    if (existingCartItem) {
+     const updatedItem = {
+        ...existingCartItem,
+        amount: existingCartItem.amount + action.item.amount,
+      };
+      updatedItems = [...state.items];
+      updatedItems[existingCartItemIndex] = updatedItem;
+    }
+    //TODO we also have the else case that a item is added for the first time to that cart items array.
+    else {
+      updatedItems = state.items.concat(action.item);
+    }
+
     return {
       items: updatedItems,
       totalAmount: updatedTotalAmount,
