@@ -17,7 +17,7 @@ const cartReducer = (state, action) => {
       (item) => item.id === action.item.id
     );
 
-    //! If the item already is part of the array, though, this item will be set to that item.
+    //! If the item already is part of the array, this item will be set to that item.
     const existingCartItem = state.items[existingCartItemIndex];
 
     let updatedItems;
@@ -68,8 +68,6 @@ const cartReducer = (state, action) => {
   return defaultCartstate;
 };
 
-//! And now we can simply pass props.children between cart context provider. And this allows us to wrap any components that should get access to this context with this cart provider component.
-
 const CartProvider = (props) => {
   const [cartState, dispatchCartAction] = useReducer(
     cartReducer,
@@ -89,6 +87,7 @@ const CartProvider = (props) => {
     addItem: addItemToCartHandler,
     removeItem: removeItemFromCartHandler,
   };
+  //! And now we can simply pass props.children between cart context provider. And this allows us to wrap any components that should get access to this context with this cart provider component.
 
   return (
     <CartContext.Provider value={cartContext}>
