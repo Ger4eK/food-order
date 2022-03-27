@@ -35,6 +35,7 @@
   border: none;
   border-radius: 25px;
   padding: 0.5rem 2rem;
+  margin-bottom: 10px;
 }
 
 .actions button:hover,
