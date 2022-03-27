@@ -34,11 +34,19 @@ const Cart = (props) => {
     </ul>
   );
 
-  const orderHandler = () => {
+  const orderHandler = (userData) => {
     setIsCheckingOut(true);
   };
-  const cancelFormHandler = () => {
-    setIsCheckingOut(false);
+
+  const submitOrderHandler = (userData) => {
+    fetch('https://react-http-9066a-default-rtdb.firebaseio.com/orders.json', {
+      method: 'POST',
+      body: JSON.stringify({
+        user: userData,
+        orderedItems: cartCtx.items,
+      }),
+    });
+    console.log('orderHandler', userData);
   };
 
   return (
@@ -48,7 +56,12 @@ const Cart = (props) => {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      {isCheckingOut && <Checkout onCancel={props.onClose} />}
+      {isCheckingOut && (
+        <Checkout
+          onCancel={props.onClose}
+          submitOrderHandler={submitOrderHandler}
+        />
+      )}
       {!isCheckingOut && (
         <div className={classes.actions}>
           <button className={classes['button--alt']} onClick={props.onClose}>

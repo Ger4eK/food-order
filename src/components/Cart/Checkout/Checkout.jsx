@@ -45,6 +45,12 @@ const Checkout = (props) => {
     if (!formIsValid) {
       return;
     }
+    props.submitOrderHandler({
+      name: enteredName,
+      street: enteredStreet,
+      postalCode: enteredPostal,
+      city: enteredCity,
+    });
   };
 
   const nameControlClasses = `${classes.control} ${
