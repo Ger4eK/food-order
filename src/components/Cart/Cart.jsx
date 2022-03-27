@@ -7,6 +7,8 @@ import Checkout from './Checkout/Checkout';
 
 const Cart = (props) => {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [didSubmit, setDidSubmit] = useState(false);
   const cartCtx = useContext(CartContext);
 
   const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
@@ -34,45 +36,70 @@ const Cart = (props) => {
     </ul>
   );
 
-  const orderHandler = (userData) => {
+  const orderHandler = () => {
     setIsCheckingOut(true);
   };
 
-  const submitOrderHandler = (userData) => {
-    fetch('https://react-http-9066a-default-rtdb.firebaseio.com/orders.json', {
-      method: 'POST',
-      body: JSON.stringify({
-        user: userData,
-        orderedItems: cartCtx.items,
-      }),
-    });
-    console.log('orderHandler', userData);
+  //! Here we wanna wait for this fetch function to finish.
+  const submitOrderHandler = async (userData) => {
+    setIsSubmitting(true);
+    await fetch(
+      'https://react-http-9066a-default-rtdb.firebaseio.com/orders.json',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          user: userData,
+          orderedItems: cartCtx.items,
+        }),
+      }
+    );
+    setIsSubmitting(false);
+    setDidSubmit(true);
+    cartCtx.clearCart();
   };
 
   return (
     <Modal onClose={props.onClose}>
-      {cartItems}
-      <div className={classes.total}>
-        <span>Total Amount</span>
-        <span>{totalAmount}</span>
-      </div>
-      {isCheckingOut && (
-        <Checkout
-          onCancel={props.onClose}
-          submitOrderHandler={submitOrderHandler}
-        />
-      )}
-      {!isCheckingOut && (
-        <div className={classes.actions}>
-          <button className={classes['button--alt']} onClick={props.onClose}>
-            Close
-          </button>
-          {hasItems && (
-            <button className={classes.button} onClick={orderHandler}>
-              Order
-            </button>
+      {!isSubmitting && !didSubmit && (
+        <>
+          {cartItems}
+          <div className={classes.total}>
+            <span>Total Amount</span>
+            <span>{totalAmount}</span>
+          </div>
+          {isCheckingOut && (
+            <Checkout
+              onCancel={props.onClose}
+              submitOrderHandler={submitOrderHandler}
+            />
           )}
-        </div>
+          {!isCheckingOut && (
+            <div className={classes.actions}>
+              <button
+                className={classes['button--alt']}
+                onClick={props.onClose}
+              >
+                Close
+              </button>
+              {hasItems && (
+                <button className={classes.button} onClick={orderHandler}>
+                  Order
+                </button>
+              )}
+            </div>
+          )}
+        </>
+      )}
+      {isSubmitting && <p>Sending order data...</p>}
+      {!isSubmitting && didSubmit && (
+        <>
+          <p>Successfully sent the order!</p>
+          <div className={classes.actions}>
+            <button className={classes['button--alt']} onClick={props.onClose}>
+              Close
+            </button>
+          </div>
+        </>
       )}
     </Modal>
   );
